@@ -53,7 +53,7 @@ while True:
                     if quitRect.collidepoint(mouse_x, mouse_y):
                         pygame.quit()
                         quit()
-                elif assets.mode == "game":
+                elif assets.mode == "game" and player.Player.state != "protected":
                     for i in enemy.Enemys:
                         if i.rect.collidepoint(mouse_x, mouse_y):
                             player.Player.attack(i)

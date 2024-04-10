@@ -14,10 +14,14 @@ pygame.font.init()
 class player:
     def __init__(self, position, image):
         self.playerStat = {
-            "stat": [100, 10, 5, 10, 100, 1000, 10, 150, 100],"BaseStat": [100, 10, 5, 10, 100, 1000, 10, 150, 100], "exp": 0, "expToLevelUp": 100, "L": 1} #vita attacco difesa velocità stanima attColdown regenerationSpeed(s) attDistant CritChanche
+            "BaseStat": [100, 10, 5, 10, 100, 1000, 10, 150, 100], "exp": 0, "expToLevelUp": 100, "L": 1} #vita attacco difesa velocità stanima attColdown regenerationSpeed(s) attDistant CritChanche
         self.x = position[0]
         self.y = position[1]
-        self.speed = self.playerStat["stat"][3] / 10
+        self.items = []
+        self.playerStat["stat"] = self.playerStat["BaseStat"].copy()
+        for i in self.items:
+            for a in  range(len(shop.items[i]["addStat"])):
+                self.playerStat["stat"][a] += shop.items[i]["addStat"][a]
         self.stamina = self.playerStat["stat"][4]
         self.life = self.playerStat["stat"][0]
         self.image = image
@@ -26,7 +30,7 @@ class player:
         self.attack_cooldown = 0
         self.regeneration_cooldown = [0, 0]
         self.money = 0
-        self.items = []
+        self.state = "normal"
     
     def statCalcolate(self):
         self.playerStat["stat"] = self.playerStat["BaseStat"].copy()
@@ -71,6 +75,15 @@ class player:
 
     def update(self, screen):
         width, height = screen.get_size()
+        if self.state == "purple":
+            if random.random() < 0.05:
+                life = random.randint(1,2)
+                self.life -= life
+                NewNotification = notific.Notifica(
+                        str(life), self.rect.center, (255, 0, 255), 1000)
+                notific.notifiche.append(NewNotification)
+            elif random.random() < 0.005:
+                self.state = "normal"
         if self.life <= 0:
             assets.mode = "menu"
             assets.round = -1
@@ -82,7 +95,7 @@ class player:
             return
         self.regeneration()
         keys = pygame.key.get_pressed()
-        speed = self.speed
+        speed = self.playerStat["stat"][3] / 10
         if (keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT]) and self.stamina >= 0.4:
             speed *= 3
             self.stamina -= 0.04
@@ -90,6 +103,9 @@ class player:
             if self.stamina < self.playerStat["stat"][4]:
                 self.stamina += 0.01
         speed /= 3
+        if self.state == "protected":
+            speed /= 2
+        print(speed)
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.x -= speed
             self.imageToView = pygame.transform.flip(self.image, True, False)

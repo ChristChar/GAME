@@ -34,6 +34,12 @@ def SUSAttack(self, screen, player):
     BaseAttack(self,player)
     self.x = random.randint(0,width)
     self.y = random.randint(0,height)
+
+def Purpleguy(self, screen, player):
+    assets.purple.play()
+    self.state = "stun/2"
+    BaseAttack(self,player)
+    player.state = "purple"
     
 
 EnemyType = {"rick": {"stat": [100, 10, 5, 20], "image": pygame.image.load("GameFile/image/enemies/rick.jpg"), "attack": rickAttack, "exp": 40, "baseMoney":15},
@@ -43,6 +49,7 @@ EnemyType = {"rick": {"stat": [100, 10, 5, 20], "image": pygame.image.load("Game
              "gold": {"stat": [50, 10, 10, 30], "image": pygame.image.load("GameFile/image/enemies/gold.png"), "attack": NormalAttack, "exp": 30,"baseMoney":100},
              "steeve": {"stat": [200, 45, 0, 30], "image": pygame.image.load("GameFile/image/enemies/steeve.png"), "attack": SteveAttack, "exp": 30,"baseMoney":20},
              "SUS": {"stat": [100, 55, 0, 40], "image": pygame.image.load("GameFile/image/enemies/red.png"), "attack": SUSAttack, "exp": 33,"baseMoney":21},
+             "PurpleGuy": {"stat": [150, 40, 10, 50], "image": pygame.image.load("GameFile/image/enemies/purple_guy.png"), "attack": Purpleguy, "exp": 33,"baseMoney":21},
              "bradbug": {"stat": [1000, 70, 10, 50], "image": pygame.image.load("GameFile/image/enemies/breadbug.png"), "attack": NormalAttack, "exp": 200,"baseMoney":100}}
 
 
@@ -84,7 +91,7 @@ class Enemy:
             return
         if self.state == "normal":
             self.move_towards_player(player)
-            if self.rect.colliderect(player.rect):
+            if self.rect.colliderect(player.rect) and player.state != "protected":
                 EnemyType[self.type]["attack"](self, screen, player)
         elif self.state == "stun":
             if random.randint(0, 1000) == 10:

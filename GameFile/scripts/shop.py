@@ -34,6 +34,16 @@ def rock(player, screen):
     coltello = pygame.transform.scale(items["sasso"]["image"], (70,70))
     screen.blit(coltello, (player.x+5,player.y-40))
 
+def scudo(player, screen):
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]:
+        player.state = "protected"
+    else:
+        player.state = "normal"
+    if player.state == "protected":
+        screen.blit(assets.bobble, (player.x - 60, player.y - 60))
+
+    
 
 items = {
     "knife": {
@@ -68,7 +78,7 @@ items = {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/water.png").convert_alpha(),
         "cost": 50,
-        "addStat": [10, 0, 1, 0, 0, 0, -0.5, 0, 0],
+        "addStat": [10, 0, 2, 5, 0, 0, -0.6, 0, 0],
         "specialScript": []
     },
     "gun": {
@@ -91,6 +101,27 @@ items = {
         "cost": 500,
         "addStat": [40, 10, 5, 0, 0, 0, -0.05, 0,-5],
         "specialScript": []
+    },
+    "cuore": {
+        "type": "roba",
+        "image": pygame.image.load("GameFile/image/items/cuore.png").convert_alpha(),
+        "cost": 70,
+        "addStat": [20, 0, 0, 0, 0, 0, 0, 0,0],
+        "specialScript": []
+    },
+    "tonno": {
+        "type": "roba",
+        "image": pygame.image.load("GameFile/image/items/TONNO.png").convert_alpha(),
+        "cost": 70,
+        "addStat": [0, 0, 0, 50, 0, 0, 0, 0,0],
+        "specialScript": []
+    },
+    "scudo": {
+        "type": "roba",
+        "image": pygame.image.load("GameFile/image/items/scudo.png").convert_alpha(),
+        "cost": 150,
+        "addStat": [0, 0, 5, 0, 0, 0, 0, 0,0],
+        "specialScript": [scudo]
     }
 }
 
