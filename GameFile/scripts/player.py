@@ -14,7 +14,7 @@ pygame.font.init()
 class player:
     def __init__(self, position, image):
         self.playerStat = {
-            "BaseStat": [100, 10, 5, 10, 100, 1000, 10, 150, 100], "exp": 0, "expToLevelUp": 100, "L": 1} #vita attacco difesa velocità stanima attColdown regenerationSpeed(s) attDistant CritChanche
+            "BaseStat": [100, 10, 5, 10, 100, 1000, 5, 150, 100], "exp": 0, "expToLevelUp": 100, "L": 1} #vita attacco difesa velocità stanima attColdown regenerationSpeed(s) attDistant CritChanche
         self.x = position[0]
         self.y = position[1]
         self.items = []
@@ -41,7 +41,7 @@ class player:
     def itemsUpdate(self,screen):
         for i in self.items:
             for b in shop.items[i]["specialScript"]:
-                b(self, screen)
+                b(self, screen, enemy.Enemys)
 
             
     def regeneration(self):
@@ -71,7 +71,7 @@ class player:
                 MaxLarg = larghezza
         for i in range(len(stat)):
             screen.blit(stat[i], (Width - MaxLarg - 50,
-                        Height - (len(stat) - i) * 100))
+                        Height - (len(stat) - i) * 70))
 
     def update(self, screen):
         width, height = screen.get_size()
@@ -103,9 +103,8 @@ class player:
             if self.stamina < self.playerStat["stat"][4]:
                 self.stamina += 0.01
         speed /= 3
-        if self.state == "protected":
+        if self.state == "protected" or self.state == "speed/2":
             speed /= 2
-        print(speed)
         if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.x -= speed
             self.imageToView = pygame.transform.flip(self.image, True, False)
@@ -130,10 +129,12 @@ class player:
         if self.attack_cooldown <= 0:
             distance = math.sqrt((Enemy.rect.center[0] - self.rect.center[0])**2 + (
                 Enemy.rect.center[1] - self.rect.center[1])**2)
+            Largezza,_ = enemy.EnemyType[Enemy.type]["image"].get_size()
+            distance -= Largezza/2 + 40
             if distance <= self.playerStat["stat"][7]:
-                attack = self.playerStat["stat"][1] + \
-                    random.randint(-2, 2) - \
-                    enemy.EnemyType[Enemy.type]["stat"][2] / 2
+                Battack = self.playerStat["stat"][1]
+                attack = max(1, random.randint(round(Battack*0.8), round(Battack*1.2)) - \
+                    enemy.EnemyType[Enemy.type]["stat"][2])
                 if random.random() < 1 / self.playerStat["stat"][8]:
                     attack *= 2
                     NewNotification = notific.Notifica(
@@ -153,7 +154,8 @@ class player:
         baseMoney = enemy.EnemyType[Enemy.type]["baseMoney"]
         MONEY = max(0,baseMoney + random.randint(round(baseMoney*-0.4),round(baseMoney*0.4)))
         if MONEY > 0:
-            assets.purchase.play()
+            purchase = pygame.mixer.Sound("GameFile/sound/purchase.mp3")
+            purchase.play()
         self.money += MONEY
         NewNotification = notific.Notifica(
                     "€"+str(MONEY), Enemy.rect.center, (255, 255, 0), 1000)

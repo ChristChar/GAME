@@ -7,7 +7,8 @@ import GameFile.scripts.assets as assets
 import GameFile.scripts.shop as shop
 
 def BaseAttack(self, player):
-    attack = EnemyType[self.type]["stat"][1] + random.randint(-1, 1)
+    baseAttack =  EnemyType[self.type]["stat"][1]
+    attack = max(1,random.randint(round(baseAttack*0.8), round(baseAttack*1.2)) - player.playerStat["stat"][2])
     player.life -= attack
     NewNotification = notific.Notifica(
         str(round(attack)), player.rect.center, (255, 0, 0), 1000)
@@ -23,34 +24,59 @@ def NormalAttack(self, screen, player):
     self.state = "stun"
     BaseAttack(self,player)
 
-def SteveAttack(self, screen, player):
+def GhostAttack(self, screen, player):
     self.state = "stun/2"
     BaseAttack(self,player)
-    assets.hit.play()
+    player.state = "speed/2"
+
+def SteveAttack(self, screen, player):
+    hit = pygame.mixer.Sound("GameFile/sound/minecraft_hit.mp3")
+    self.state = "stun/2"
+    BaseAttack(self,player)
+    hit.play()
 
 def SUSAttack(self, screen, player):
-    assets.vent.play()
+    vent = pygame.mixer.Sound("GameFile/sound/vent.mp3")
+    vent.play()
     width, height = screen.get_size()
     BaseAttack(self,player)
     self.x = random.randint(0,width)
     self.y = random.randint(0,height)
 
 def Purpleguy(self, screen, player):
-    assets.purple.play()
+    purple = pygame.mixer.Sound("GameFile/sound/theMan.mp3")
+    purple.play()
     self.state = "stun/2"
     BaseAttack(self,player)
     player.state = "purple"
     
+def CasualTp(self, screen, player):
+    if random.random() < 0.01:
+        width, height = screen.get_size()
+        self.x = random.randint(0,width)
+        self.y = random.randint(0, height)
 
-EnemyType = {"rick": {"stat": [100, 10, 5, 20], "image": pygame.image.load("GameFile/image/enemies/rick.jpg"), "attack": rickAttack, "exp": 40, "baseMoney":15},
-             "GINO": {"stat": [150, 30, 5, 25], "image": pygame.image.load("GameFile/image/enemies/EvilGino.png"), "attack": NormalAttack, "exp": 100, "baseMoney":30},
-             "bidoof": {"stat": [35, 3, 0, 10], "image": pygame.image.load("GameFile/image/enemies/bidoof.png"), "attack": NormalAttack, "exp": 10,"baseMoney":1},
-             "sonic": {"stat": [70, 7, 5, 500], "image": pygame.image.load("GameFile/image/enemies/sonic.png"), "attack": NormalAttack, "exp": 50,"baseMoney":17},
-             "gold": {"stat": [50, 10, 10, 30], "image": pygame.image.load("GameFile/image/enemies/gold.png"), "attack": NormalAttack, "exp": 30,"baseMoney":100},
-             "steeve": {"stat": [200, 45, 0, 30], "image": pygame.image.load("GameFile/image/enemies/steeve.png"), "attack": SteveAttack, "exp": 30,"baseMoney":20},
-             "SUS": {"stat": [100, 55, 0, 40], "image": pygame.image.load("GameFile/image/enemies/red.png"), "attack": SUSAttack, "exp": 33,"baseMoney":21},
-             "PurpleGuy": {"stat": [150, 40, 10, 50], "image": pygame.image.load("GameFile/image/enemies/purple_guy.png"), "attack": Purpleguy, "exp": 33,"baseMoney":21},
-             "bradbug": {"stat": [1000, 70, 10, 50], "image": pygame.image.load("GameFile/image/enemies/breadbug.png"), "attack": NormalAttack, "exp": 200,"baseMoney":100}}
+def SpawnBidoof(self, screen, player):
+    if random.random() < 0.005:
+        bidoof = pygame.mixer.Sound("GameFile/sound/bidoof.mp3")
+        Width, Height = screen.get_size()
+        a = Enemy((random.randint(0, Width),
+                                random.randint(0, Height)), "bidoof", player)
+        Enemys.append(a)
+        bidoof.play()
+
+
+EnemyType = {"rick": {"stat": [100, 10, 5, 20], "image": pygame.image.load("GameFile/image/enemies/rick.jpg"), "attack": rickAttack, "exp": 40, "baseMoney":15,"Script":[]},
+             "GINO": {"stat": [150, 30, 5, 25], "image": pygame.image.load("GameFile/image/enemies/EvilGino.png"), "attack": NormalAttack, "exp": 100, "baseMoney":20,"Script":[]},
+             "bidoof": {"stat": [35, 3, 0, 10], "image": pygame.image.load("GameFile/image/enemies/bidoof.png"), "attack": NormalAttack, "exp": 10,"baseMoney":1,"Script":[]},
+             "sonic": {"stat": [70, 7, 5, 500], "image": pygame.image.load("GameFile/image/enemies/sonic.png"), "attack": NormalAttack, "exp": 50,"baseMoney":17,"Script":[]},
+             "gold": {"stat": [50, 10, 10, 30], "image": pygame.image.load("GameFile/image/enemies/gold.png"), "attack": NormalAttack, "exp": 30,"baseMoney":100,"Script":[]},
+             "steeve": {"stat": [200, 45, 0, 30], "image": pygame.image.load("GameFile/image/enemies/steeve.png"), "attack": SteveAttack, "exp": 30,"baseMoney":20,"Script":[]},
+             "SUS": {"stat": [100, 55, 0, 40], "image": pygame.image.load("GameFile/image/enemies/red.png"), "attack": SUSAttack, "exp": 33,"baseMoney":21,"Script":[]},
+             "PurpleGuy": {"stat": [150, 40, 10, 50], "image": pygame.image.load("GameFile/image/enemies/purple_guy.png"), "attack": Purpleguy, "exp": 33,"baseMoney":21,"Script":[]},
+             "DragoGomma": {"stat": [200, 30, 35, 70], "image": pygame.image.load("GameFile/image/enemies/DragoGomma.png"), "attack": NormalAttack, "exp": 40,"baseMoney":25,"Script":[CasualTp]},
+             "DancingGhost": {"stat": [100, 10, 5, 150], "image": pygame.image.load("GameFile/image/enemies/Dance.png"), "attack": GhostAttack, "exp": 28,"baseMoney":18,"Script":[CasualTp]},
+             "breadbug": {"stat": [1250, 80, 15, 30], "image": pygame.image.load("GameFile/image/enemies/breadbug.png"), "attack": NormalAttack, "exp": 200,"baseMoney":100,"Script":[SpawnBidoof]}}
 
 
 class Enemy:
@@ -93,6 +119,8 @@ class Enemy:
             self.move_towards_player(player)
             if self.rect.colliderect(player.rect) and player.state != "protected":
                 EnemyType[self.type]["attack"](self, screen, player)
+            for i in EnemyType[self.type]["Script"]:
+                i(self, screen, player)
         elif self.state == "stun":
             if random.randint(0, 1000) == 10:
                 self.state = "normal"

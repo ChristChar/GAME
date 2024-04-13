@@ -7,17 +7,14 @@ pygame.mixer.init()
 yee = pygame.image.load("GameFile/image/yee.png").convert_alpha()
 SartButton = pygame.image.load("GameFile/image/start.png").convert_alpha()
 QuitButton = pygame.image.load("GameFile/image/quit.png").convert_alpha()
+MenuButton = pygame.image.load("GameFile/image/menu.png").convert_alpha()
+PlayerButton = pygame.image.load("GameFile/image/player.png").convert_alpha()
 back = pygame.image.load("GameFile/image/background.png").convert_alpha()
 player = pygame.image.load("GameFile/image/player/catto.png").convert_alpha()
-shop = pygame.image.load("GameFile/image/shop.png").convert_alpha()
 bobble = pygame.image.load("GameFile/image/bobble.png").convert_alpha()
 
 attack = pygame.mixer.Sound("GameFile/sound/attack1.mp3")
 LevelUp = pygame.mixer.Sound("GameFile/sound/LevelUp.mp3")
-purchase = pygame.mixer.Sound("GameFile/sound/purchase.mp3")
-hit = pygame.mixer.Sound("GameFile/sound/minecraft_hit.mp3")
-vent = pygame.mixer.Sound("GameFile/sound/vent.mp3")
-purple = pygame.mixer.Sound("GameFile/sound/theMan.mp3")
 meow = []
 for filename in os.listdir("GameFile/sound/meow"):
     if filename.endswith(".wav") or filename.endswith(".mp3"):
@@ -41,16 +38,17 @@ rounds = [#["shop"],
           [["bidoof"],[],[],["gold"]],
           [["bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof"],["bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof","bidoof"],["bidoof"],["gold"]],
           ["shop"],
-          [["rick","rick","rick","rick","GINO","GINO"],["bidoof","bidoof","bidoof","bidoof"],["rick","steeve","SUS"],["gold","PurpleGuy"]],
-          [["GINO","GINO","steeve","sonic"],["steeve","sonic","SUS","SUS"],["steeve"],["gold","PurpleGuy"]],
-          [["SUS","SUS","SUS","GINO","sonic","steeve"],["bidoof","bidoof","steeve","sonic"],["SUS","GINO","gold","PurpleGuy"]],
+          [["rick","rick","rick","rick","GINO","GINO"],["bidoof","bidoof","bidoof","DancingGhost"],["rick","steeve","SUS","DancingGhost"],["gold","PurpleGuy","DancingGhost"]],
+          [["GINO","GINO","steeve","sonic"],["steeve","sonic","SUS","SUS"],["steeve","DancingGhost"],["gold","PurpleGuy","DancingGhost"],["SUS","DancingGhost"],["DragoGomma","DancingGhost"]],
+          [["SUS","SUS","SUS","GINO","sonic","steeve"],["DancingGhost","bidoof","steeve","sonic"],["SUS","GINO","gold","PurpleGuy","DancingGhost"],["DragoGomma","DancingGhost"]],
           ["shop"],
           ["heal"],
-          [["bradbug"],["bidoof","bidoof","bidoof","bidoof"]],
+          [["breadbug"],["bidoof","bidoof","bidoof","bidoof"]],
           ["shop"],
           ["heal"],
-          [["PurpleGuy","SUS","PurpleGuy","steeve"],["SUS","PurpleGuy","steeve","GINO","bidoof"],["bidoof","rick"],["gold"]],
-          [["sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic"]]]
+          [["PurpleGuy","SUS","PurpleGuy","steeve"],["SUS","PurpleGuy","steeve","GINO","bidoof","DancingGhost"],["bidoof","rick","DragoGomma","DancingGhost"],["gold","DancingGhost"]],
+          [["sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic"]],
+          [["PurpleGuy","DragoGomma","DragoGomma","SUS","steeve"],["PurpleGuy","DragoGomma","SUS","steeve","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof"],["gold","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof"],["gold","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof"]]]
 
 def BasePygameCicle(event, screen):
     global screen_width, screen_height , Screenmode, width, height

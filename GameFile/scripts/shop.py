@@ -1,40 +1,52 @@
 import pygame
 import random
+import math
 import GameFile.scripts.assets as assets
 import GameFile.scripts.notification as notific
+import GameFile.scripts.progliettili as progliettili
 
 banana = random.choice(assets.meow)
+ShootColdown = 0
 channel = None
 
-def meow(player, screen):
+def meow(player, screen, enemys):
     global banana
     global channel
     if channel is not None and channel.get_busy() and banana == channel.get_sound():
         width, height = screen.get_size()
-        screen.blit(items["cat"]["image"], (random.randint(round(width*0.1),round(width*0.7)),random.randint(round(height*0.1),round(height*0.7))))
+        x,y = random.randint(round(width*0.1),round(width*0.7)),random.randint(round(height*0.1),round(height*0.7))
+        screen.blit(items["cat"]["image"], (x,y))
+        object_rect = pygame.Rect(x, y, 225, 225)
+        if random.random() < 0.1:
+            for i in enemys:
+                if i.rect.colliderect(object_rect):          
+                    NewNotification = notific.Notifica(
+                            str(1), i.rect.center, (255, 0, 0), 1000)
+                    notific.notifiche.append(NewNotification)
+                    i.life -= 1
     else:
         if random.random() < 0.001:
             banana =  random.choice(assets.meow)
             channel = banana.play()
 
-def knife(player, screen):
+def knife(player, screen, enemys):
     coltello = pygame.transform.scale(items["knife"]["image"], (80,80))
     screen.blit(coltello, (player.x,player.y+10))
 
-def longSword(player, screen):
+def longSword(player, screen, enemys):
     coltello = pygame.transform.scale(items["longSword"]["image"], (100,100))
     coltello = pygame.transform.rotate(coltello, random.randint(-10,10))
     screen.blit(coltello, (player.x-10,player.y+10))
 
-def gun(player, screen):
+def gun(player, screen, enemys):
     coltello = pygame.transform.scale(items["gun"]["image"], (80,80))
     screen.blit(coltello, (player.x-30,player.y+10))
 
-def rock(player, screen):
+def rock(player, screen, enemys):
     coltello = pygame.transform.scale(items["sasso"]["image"], (70,70))
     screen.blit(coltello, (player.x+5,player.y-40))
 
-def scudo(player, screen):
+def scudo(player, screen, enemys):
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]:
         player.state = "protected"
@@ -43,7 +55,20 @@ def scudo(player, screen):
     if player.state == "protected":
         screen.blit(assets.bobble, (player.x - 60, player.y - 60))
 
-    
+def fireBall(player, screen, enemys):
+    global ShootColdown
+    if pygame.time.get_ticks() - ShootColdown >= 2000:
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_e]:
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            delta_y = mouse_y - player.y
+            delta_x = mouse_x - player.x
+            angolo_radiani = math.atan2(delta_y, delta_x)
+            angolo_gradi = math.degrees(angolo_radiani)
+            angolo_gradi = (angolo_gradi + 360) % 360
+            NewFireBall = progliettili.Progliettile("fireBall",[player.x,player.y],angolo_gradi)
+            progliettili.progliettili.append(NewFireBall)
+            ShootColdown = pygame.time.get_ticks()
 
 items = {
     "knife": {
@@ -70,8 +95,8 @@ items = {
     "cat": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/cat.png").convert_alpha(),
-        "cost": 100,
-        "addStat": [10, 0, 10, -5, 0, 0, 0, 5, -10],
+        "cost": 150,
+        "addStat": [5, 0, 5, -5, 0, 0, 0, 5, -5],
         "specialScript": [meow]
     },
     "acqua": {
@@ -120,12 +145,21 @@ items = {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/scudo.png").convert_alpha(),
         "cost": 150,
-        "addStat": [0, 0, 5, 0, 0, 0, 0, 0,0],
+        "addStat": [0, 0, 1, 0, 0, 0, 0, 0,0],
         "specialScript": [scudo]
+    },
+    "fireBall": {
+        "type": "roba",
+        "image": pygame.image.load("GameFile/image/items/FireBall.png").convert_alpha(),
+        "cost": 250,
+        "addStat": [0, 1, 0, 0, 0, 0, 0, 0,0],
+        "specialScript": [fireBall]
     }
-}
+    }
 
 def shop(screen, player):
+    shop = pygame.image.load("GameFile/image/shop.png").convert_alpha()
+    purchase = pygame.mixer.Sound("GameFile/sound/purchase.mp3")
     itemsInShop = []
     rects = []
     itemsKeys = list(items.keys())  
@@ -134,10 +168,10 @@ def shop(screen, player):
         rects.append(pygame.rect.Rect(0,0,255,255))
     while True:
         screen.fill((255, 255, 255))
-        larghezza, altezza = assets.shop.get_size()
+        larghezza, altezza = shop.get_size()
         screen_width, screen_height = screen.get_size()
         scale_ratio = screen_width / larghezza * 0.6
-        frame_surface = pygame.transform.scale(assets.shop, (round(larghezza * scale_ratio), round(altezza * scale_ratio)))
+        frame_surface = pygame.transform.scale(shop, (round(larghezza * scale_ratio), round(altezza * scale_ratio)))
         posY = screen_height - round(altezza * scale_ratio)
         posX = screen_width / 2 - round(larghezza * scale_ratio) / 2
         screen.blit(frame_surface, (posX, posY))
@@ -177,7 +211,7 @@ def shop(screen, player):
                         if rects[i] is not None:
                             if rects[i].collidepoint(mouse_x, mouse_y):
                                 if player.money >= items[itemsInShop[i]]["cost"]:
-                                    assets.purchase.play()
+                                    purchase.play()
                                     player.money -= items[itemsInShop[i]]["cost"]
                                     player.items.append(itemsInShop[i])
                                     itemsInShop[i] = None
