@@ -25,9 +25,8 @@ font = pygame.font.SysFont(None, 64)
 
 width = 800
 height = 600
-Screenmode = "normal"
 mode = "menu"
-round = -1
+round = 0
 rounds = [#["shop"],
           [["bidoof"]],
           [["bidoof","rick"],["bidoof","bidoof"],[],["GINO"],["bidoof"],["gold"]],
@@ -37,7 +36,6 @@ rounds = [#["shop"],
           ["shop"],
           [["bidoof"],[],[],["gold"]],
           [["bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof"],["bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof", "bidoof","bidoof"],["bidoof"],["gold"]],
-          ["shop"],
           [["rick","rick","rick","rick","GINO","GINO"],["bidoof","bidoof","bidoof","DancingGhost"],["rick","steeve","SUS","DancingGhost"],["gold","PurpleGuy","DancingGhost"]],
           [["GINO","GINO","steeve","sonic"],["steeve","sonic","SUS","SUS"],["steeve","DancingGhost"],["gold","PurpleGuy","DancingGhost"],["SUS","DancingGhost"],["DragoGomma","DancingGhost"]],
           [["SUS","SUS","SUS","GINO","sonic","steeve"],["DancingGhost","bidoof","steeve","sonic"],["SUS","GINO","gold","PurpleGuy","DancingGhost"],["DragoGomma","DancingGhost"]],
@@ -46,24 +44,23 @@ rounds = [#["shop"],
           [["breadbug"],["bidoof","bidoof","bidoof","bidoof"]],
           ["shop"],
           ["heal"],
-          [["PurpleGuy","SUS","PurpleGuy","steeve"],["SUS","PurpleGuy","steeve","GINO","bidoof","DancingGhost"],["bidoof","rick","DragoGomma","DancingGhost"],["gold","DancingGhost"]],
+          [["PurpleGuy","SUS","PurpleGuy","steeve"],["SUS","PurpleGuy","steeve","GINO","bidoof","DancingGhost"],["bidoof","rick","DragoGomma","DancingGhost"],["gold","DancingGhost","calziniShooter"],["calziniShooter"]],
           [["sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic","sonic"]],
-          [["PurpleGuy","DragoGomma","DragoGomma","SUS","steeve"],["PurpleGuy","DragoGomma","SUS","steeve","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof"],["gold","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof"],["gold","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof"]]]
+          [["PurpleGuy","DragoGomma","DragoGomma","SUS","steeve"],["PurpleGuy","DragoGomma","SUS","steeve","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","calziniShooter"],["gold","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","calziniShooter"],["gold","bidoof","bidoof","bidoof","bidoof","bidoof","bidoof","calziniShooter"]],
+          [["DragoGomma","DragoGomma","DragoGomma","PurpleGuy"],["calziniShooter","SUS","steeve"],["gold","calziniShooter"]],
+          ["shop"],
+          ["heal"],
+          [["calziniShooter","calziniShooter","calziniShooter","calziniShooter"],["calziniShooter","calziniShooter","calziniShooter","calziniShooter","calziniShooter","calziniShooter","calziniShooter"]],
+          [["DragoGomma","calziniShooter","calziniShooter","calziniShooter","calziniShooter","calziniShooter","SUS"],["SUS","SUS","SUS","SUS","PurpleGuy"],["gold","PurpleGuy","steeve"]],
+          ["shop"],
+          ["heal"],
+          [["doge"]]]
+
 
 def BasePygameCicle(event, screen):
-    global screen_width, screen_height , Screenmode, width, height
+    global screen_width, screen_height, width, height
     if event.type == pygame.QUIT:
         pygame.quit()
         quit()
-    elif event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_1:
-            if Screenmode == "normal":
-                screen = pygame.display.set_mode(
-                    (screen_width, screen_height), pygame.FULLSCREEN)
-                Screenmode = "full"
-            else:
-                screen = pygame.display.set_mode(
-                    (width, height), pygame.RESIZABLE)
-                Screenmode = "normal"
-    elif event.type == pygame.VIDEORESIZE and Screenmode == "normal":
+    elif event.type == pygame.VIDEORESIZE:
         width, height = screen.get_size()

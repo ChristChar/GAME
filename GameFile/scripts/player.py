@@ -6,18 +6,38 @@ import GameFile.scripts.assets as assets
 import GameFile.scripts.notification as notific
 import GameFile.scripts.enemies as enemy
 import GameFile.scripts.shop as shop
+import GameFile.scripts.progliettili as progliettili
 
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
 
 class player:
-    def __init__(self, position, image):
-        self.playerStat = {
-            "BaseStat": [100, 10, 5, 10, 100, 1000, 5, 150, 100], "exp": 0, "expToLevelUp": 100, "L": 1} #vita attacco difesa velocità stanima attColdown regenerationSpeed(s) attDistant CritChanche
+    def __init__(self, position, image, saveFile, load = False):
+        if load:
+            with open(saveFile, 'r') as file:
+                lines =  [line.rstrip('\n') for line in file.readlines()]
+            self.playerStat = {}
+            print(lines)
+            self.playerStat["L"], self.playerStat["exp"], self.playerStat["expToLevelUp"], self.money, self.death, assets.round = list(map(lambda x: round(float(x)), lines[:6]))
+            if len(lines) == 7:
+                self.items = lines[6].split("!")
+            else:
+                self.items = []
+            self.playerStat["BaseStat"] = [100, 10, 5, 20, 100, 1000, 5, 150, 100]
+            for i in range(self.playerStat["L"]-1):
+                self.playerStat["BaseStat"][0] += 10
+                self.playerStat["BaseStat"][1] += 5
+                self.playerStat["BaseStat"][2] += 1
+                self.playerStat["BaseStat"][3] += 3
+        else:
+            self.playerStat = {
+                "BaseStat": [100, 10, 5, 20, 100, 1000, 5, 150, 100], "exp": 0, "expToLevelUp": 100, "L": 1} #vita attacco difesa velocità stanima attColdown regenerationSpeed(s) attDistant CritChanche
+            self.items = []
+            self.money = 0
+            self.death = 0
         self.x = position[0]
         self.y = position[1]
-        self.items = []
         self.playerStat["stat"] = self.playerStat["BaseStat"].copy()
         for i in self.items:
             for a in  range(len(shop.items[i]["addStat"])):
@@ -29,9 +49,20 @@ class player:
         self.imageToView = image
         self.attack_cooldown = 0
         self.regeneration_cooldown = [0, 0]
-        self.money = 0
         self.state = "normal"
+        self.file = saveFile
     
+    def saveProgres(self):
+        with open(self.file, 'w') as file:
+        # Scrivi le informazioni del giocatore
+            player_info = [str(self.playerStat["L"]), str(self.playerStat["exp"]), str(self.playerStat["expToLevelUp"]), str(self.money), str(self.death), str(assets.round)]
+            for i in player_info:
+                file.write(i)
+                file.write('\n')
+            # Scrivi gli oggetti del giocatore
+            items_info = '!'.join(self.items)
+            file.write(items_info)
+
     def statCalcolate(self):
         self.playerStat["stat"] = self.playerStat["BaseStat"].copy()
         for i in self.items:
@@ -85,13 +116,16 @@ class player:
             elif random.random() < 0.005:
                 self.state = "normal"
         if self.life <= 0:
+            self.money = round(self.money / 2)
+            self.death += 1
             assets.mode = "menu"
-            assets.round = -1
             NewNotification = notific.Notifica(
                 "GAME OVER", (100, 200), (255, 0, 0), 2000,4, True)
             notific.notifiche.append(NewNotification)
-            del self
+            self.life = self.playerStat["stat"][0]
+            self.stanima = self.playerStat["stat"][4]
             enemy.Enemys = []
+            progliettili.progliettili = []
             return
         self.regeneration()
         keys = pygame.key.get_pressed()

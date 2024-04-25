@@ -1,23 +1,27 @@
 import pygame
+
 screen = pygame.display.set_mode(
     (800, 600), pygame.RESIZABLE)
-import random
-import GameFile.scripts.assets as assets
+
 import GameFile.scripts.saveload as save
+import GameFile.scripts.assets as assets
 import GameFile.scripts.notification as notific
 import GameFile.scripts.cutSceen as CutSceen
 import GameFile.scripts.player as player
 import GameFile.scripts.enemies as enemy
 import GameFile.scripts.progliettili as progliettili
+import GameFile.scripts.finals as end
 
-#C:\Users\chris\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\LocalCache\local-packages\Python312\Scripts\pyinstaller.exe --onefile --icon=yee.ico main.py
-#git add GameFile main.py README.md
+pygame.display.quit()
 
+save.loadSetting()
+save.saveLoad()
+
+screen = pygame.display.set_mode(
+    (800, 600), pygame.RESIZABLE)
 
 pygame.font.init()
 pygame.init()
-
-save.loadSetting()
 
 pygame.display.set_caption("giuoco")
 pygame.display.set_icon(assets.yee)
@@ -49,7 +53,7 @@ def writeStat(self):
     hp = assets.font.render(
         "vita: "+str(self.life)+"/"+str(self.playerStat["stat"][0]), True, (0, 0, 0))
     att = assets.font.render(
-        "attcco: "+str(self.playerStat["stat"][1]), True, (0, 0, 0))
+        "attacco: "+str(self.playerStat["stat"][1]), True, (0, 0, 0))
     dif = assets.font.render(
         "difesa: "+str(self.playerStat["stat"][2]), True, (0, 0, 0))
     vel = assets.font.render(
@@ -64,7 +68,9 @@ def writeStat(self):
         "distanza min. di attacco: "+str(self.playerStat["stat"][7])+"px", True, (0, 0, 0))
     CrtChan = assets.font.render(
         "possibilità si colpo critico: "+str(round(1 / self.playerStat["stat"][8] * 100,2))+"%", True, (0, 0, 0))
-    stat = [Level,hp, regSp, att, attSp, Attdist, CrtChan, dif, vel, Msta]
+    death = assets.font.render(
+        "morti: "+str(self.death), True, (0, 0, 0))
+    stat = [Level,hp, regSp, att, attSp, Attdist, CrtChan, dif, vel, Msta, death]
     return stat
 
 while True:
@@ -72,23 +78,32 @@ while True:
     larghezza, altezza = assets.yee.get_size()
     Width, Height = screen.get_size()
     for event in pygame.event.get():
-        assets.BasePygameCicle(event, screen)
-        if event.type == pygame.MOUSEBUTTONDOWN:
+        if event.type == pygame.QUIT:
+            player.Player.saveProgres()
+            pygame.quit()
+            quit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 mouse_x, mouse_y = event.pos
                 if assets.mode == "menu":
                     if startRect.collidepoint(mouse_x, mouse_y):
                         assets.mode = "game"
-                        player.Player = player.player(
-                            (300, 300), assets.player)
+                        enemy.spawnEnemys(screen, player.Player)
                     if quitRect.collidepoint(mouse_x, mouse_y):
+                        player.Player.saveProgres()
                         pygame.quit()
                         quit()
                 elif assets.mode == "gameMenu":
                     if startRect.collidepoint(mouse_x, mouse_y):
                         assets.mode = "statView"
                     if quitRect.collidepoint(mouse_x, mouse_y):
+                        assets.round -= 1
                         assets.mode = "menu"
+                        self = player.Player
+                        self.life = self.playerStat["stat"][0]
+                        self.stanima = self.playerStat["stat"][4]
+                        enemy.Enemys = []
+                        progliettili.progliettili = []
                 elif assets.mode == "game" and player.Player.state != "protected":
                     for i in enemy.Enemys:
                         if i.rect.collidepoint(mouse_x, mouse_y):
@@ -124,7 +139,7 @@ while True:
         stat = writeStat(player.Player)
         for i in range(len(stat)):
             screen.blit(stat[i], (0 + 50,
-                        0 + i * (Height/10)+20))
+                        0 + i * (Height/10)+25))
     notific.notification(screen)
     if pygame.time.get_ticks() - lastFPS >= 1000 and len(Fpss) > 0:
         FPS = sum(Fpss) / len(Fpss)

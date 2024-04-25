@@ -4,7 +4,8 @@ import random
 import GameFile.scripts.notification as notific
 import GameFile.scripts.enemies as enemy
 
-types = {"fireBall":{"BaseDamage": 50,"image":pygame.image.load("GameFile/image/items/FireBall.png")}}
+types = {"fireBall":{"speed":3,"BaseDamage": 50,"image":pygame.image.load("GameFile/image/items/FireBall.png")},
+         "calzino":{"speed":5,"BaseDamage": 40,"image":pygame.image.load("GameFile/image/calzino.png")}}
 
 class Progliettile:
     def __init__(self,type,position, direction, BY= True):
@@ -19,11 +20,14 @@ class Progliettile:
 
     def move(self, screenDimension):
         angle_radians = math.radians(self.direction)
-        vel_x = 3 * math.cos(angle_radians)
-        vel_y = 3 * math.sin(angle_radians)
+        vel_x = types[self.type]["speed"] * math.cos(angle_radians)
+        vel_y = types[self.type]["speed"] * math.sin(angle_radians)
         self.x += vel_x
         self.y += vel_y
         if self.x > screenDimension[0] or self.x < 0 or self.y < 0 or self.y > screenDimension[1]:
+            if random.random() < 0.7:
+                del self
+                return
             self.direction = (self.direction + 180) % 360
 
     def collisioni(self, enemys,player):
@@ -39,13 +43,14 @@ class Progliettile:
                     return
         else:
             if self.rect.colliderect(player.rect):
-                attack = types[self.type]["BaseDamage"] + random.randint(-3, 3) - player.playerStat["stat"][2]
-                player.life -= attack
-                NewNotification = notific.Notifica(
-                    str(round(attack)), player.rect.center, (255, 0, 0), 1000)
-                notific.notifiche.append(NewNotification)
-                progliettili.remove(self)
-                return
+                if player.state != "protected":
+                    attack = max(types[self.type]["BaseDamage"] + random.randint(-3, 3) - player.playerStat["stat"][2],1)
+                    player.life -= attack
+                    NewNotification = notific.Notifica(
+                        str(round(attack)), player.rect.center, (255, 0, 0), 1000)
+                    notific.notifiche.append(NewNotification)
+                    progliettili.remove(self)
+                    return
 
     def update(self,screen,enemys,player):
         width, heigth = screen.get_size()
