@@ -1,9 +1,12 @@
 import pygame
 import random
 import math
+import ctypes
 import GameFile.scripts.assets as assets
 import GameFile.scripts.notification as notific
 import GameFile.scripts.progliettili as progliettili
+import GameFile.scripts.pygameEventCycles as cicle
+import GameFile.scripts.functions as F
 
 banana = random.choice(assets.meow)
 ShootColdown = 0
@@ -35,6 +38,11 @@ def knife(player, screen, enemys):
 
 def longSword(player, screen, enemys):
     coltello = pygame.transform.scale(items["longSword"]["image"], (100,100))
+    coltello = pygame.transform.rotate(coltello, random.randint(-10,10))
+    screen.blit(coltello, (player.x-10,player.y+10))
+
+def pescio(player, screen, enemys):
+    coltello = pygame.transform.scale(items["Pesce Spada"]["image"], (100,100))
     coltello = pygame.transform.rotate(coltello, random.randint(-10,10))
     screen.blit(coltello, (player.x-10,player.y+10))
 
@@ -75,85 +83,113 @@ items = {
         "type": "weapon",
         "image": pygame.image.load("GameFile/image/items/knife.png").convert_alpha(),
         "cost": 100,
-        "addStat": [0, 10, 0, 0, 0, 0, 0, -10, -1],
-        "specialScript": [knife]
+        "addStat": [0, 10, 0, 0, 0, 0, 0, -20, -1],
+        "specialScript": [knife],
+        "description": "+attacco -range"
     },
     "longSword": {
         "type": "weapon",
         "image": pygame.image.load("GameFile/image/items/longsword.png").convert_alpha(),
         "cost": 250,
         "addStat": [0, 20, 0, 0, 0, 0, 0, 10, -5],
-        "specialScript": [longSword]
+        "specialScript": [longSword],
+        "description": "++attacco +range"
+    },
+    "Pesce Spada": {
+        "type": "weapon",
+        "image": pygame.image.load("GameFile/image/items/pesceSpada.png").convert_alpha(),
+        "cost": 100,
+        "addStat": [10, 10, 1, 0, 0, 0, 0, 5, 0],
+        "specialScript": [pescio],
+        "description": "+vita +attacco +range"
     },
     "sasso": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/sasso.png").convert_alpha(),
         "cost": 150,
         "addStat": [10, 5, 5, -10, 0, 100, 0, -5, -5],
-        "specialScript": [rock]
+        "specialScript": [rock],
+        "description": "+vita +attacco +difesa -velocità -att speed"
     },
     "cat": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/cat.png").convert_alpha(),
         "cost": 150,
         "addStat": [5, 0, 5, -5, 0, 0, 0, 5, -5],
-        "specialScript": [meow]
+        "specialScript": [meow],
+        "description": "+difesa a caso appare e fa danni a caso"
     },
     "acqua": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/water.png").convert_alpha(),
         "cost": 50,
         "addStat": [10, 0, 2, 5, 0, 0, -0.6, 0, 0],
-        "specialScript": []
+        "specialScript": [],
+        "description": "+vita +difesa"
     },
     "gun": {
         "type": "weapon",
         "image": pygame.image.load("GameFile/image/items/gun.png").convert_alpha(),
         "cost": 250,
-        "addStat": [0, 5, 0, 0, 0, 0, 0, 500,0],
-        "specialScript": [gun]
+        "addStat": [0, 0, 0, 0, 0, 0, 0, 500,0],
+        "specialScript": [gun],
+        "description": "++++++++++++range"
     },
     "fiore": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/fiore.png").convert_alpha(),
         "cost": 25,
         "addStat": [5, 1, 1, 5, 5, 0, -0.01, 0,0],
-        "specialScript": []
+        "specialScript": [],
+        "description": "un poco poco di tutto"
     },
     "papera": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/paperella.png").convert_alpha(),
-        "cost": 500,
-        "addStat": [40, 10, 5, 0, 0, 0, -0.05, 0,-5],
-        "specialScript": []
+        "cost": 1000,
+        "addStat": [-50, 10, -1, 5, 0, 0, -0.05, -10,-5],
+        "specialScript": [],
+        "description": "-----vita +attaco -difesa -reg.Speed -range +CritChance"
     },
     "cuore": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/cuore.png").convert_alpha(),
         "cost": 70,
         "addStat": [20, 0, 0, 0, 0, 0, 0, 0,0],
-        "specialScript": []
+        "specialScript": [],
+        "description": "++vita"
     },
     "tonno": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/TONNO.png").convert_alpha(),
         "cost": 70,
         "addStat": [0, 0, 0, 50, 0, 0, 0, 0,0],
-        "specialScript": []
+        "specialScript": [],
+        "description": "+++++ velocità"
     },
     "scudo": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/scudo.png").convert_alpha(),
         "cost": 150,
         "addStat": [0, 0, 1, 0, 0, 0, 0, 0,0],
-        "specialScript": [scudo]
+        "specialScript": [scudo],
+        "description": "+difesa quando premi CTRL puoi attivare lo scudo che non ti fa prendere danni ma non puoi attaccare e sei lento"
     },
     "fireBall": {
         "type": "roba",
         "image": pygame.image.load("GameFile/image/items/FireBall.png").convert_alpha(),
         "cost": 250,
         "addStat": [0, 1, 0, 0, 0, 0, 0, 0,0],
-        "specialScript": [fireBall]
+        "specialScript": [fireBall],
+        "description": "premi E per sparare delle palle di fuoco con danno medio di 50"
+    },
+    "pinguino carino": {
+        "type": "roba",
+        "image": pygame.image.load("GameFile/image/items/pinguino.png").convert_alpha(),
+        "cost": 400,
+        "addStat": [30, 0, 10, 5, 0, 0, -1, 0,-10],
+        "specialScript": [],
+        "description": "+++vita ++difesa ++++reg.Speed +++CritChance"
     }
     }
 
@@ -177,8 +213,8 @@ def shop(screen, player):
         screen.blit(frame_surface, (posX, posY))
         grid_width = screen_width // 3 
         grid_height = screen_height // 2
-        horizontal_space =  (grid_width * 0.1) // (3 - 1)
-        vertical_space =    -100 // (2 - 1)
+        horizontal_space = (grid_width * 0.1) // (3 - 1)
+        vertical_space = -100 // (2 - 1)
         itemN = 0
         for row in range(2):
             for col in range(3):
@@ -201,9 +237,20 @@ def shop(screen, player):
         screen.blit(money, (10,10)) 
         screen.blit(enter, (20+ wiii,10)) 
         notific.notification(screen)
+        for i, rect in enumerate(rects):
+            if rect is not None:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                if rect.collidepoint(mouse_x, mouse_y):
+                    dimension = screen_height / 6
+                    description_box = pygame.Rect(mouse_x+10, mouse_y+10, dimension*1.7, dimension)
+                    pygame.draw.rect(screen, (0, 0, 0), description_box) 
+                    font = pygame.font.SysFont(None, int(dimension / 4.5))
+                    description_text = itemsInShop[i]+": "+items[itemsInShop[i]]["description"]
+                    description_box = pygame.Rect(mouse_x+15, mouse_y+15, dimension*1.65, dimension*0.95)
+                    F.draw_text_within(screen, description_text, description_box, font, (255, 255, 255))
         pygame.display.update()
         for event in pygame.event.get():
-            assets.BasePygameCicle(event, screen)
+            cicle.BaseCicle(event)
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     mouse_x, mouse_y = event.pos
@@ -211,6 +258,18 @@ def shop(screen, player):
                         if rects[i] is not None:
                             if rects[i].collidepoint(mouse_x, mouse_y):
                                 if player.money >= items[itemsInShop[i]]["cost"]:
+                                    if items[itemsInShop[i]]["type"] == "weapon":
+                                        weapon = None
+                                        for w in player.items:
+                                            if items[w]["type"] == "weapon":
+                                                weapon = w
+                                                break
+                                        if weapon is not None:
+                                            input = ctypes.windll.user32.MessageBoxW(None, "hai già un'arma, vuoi sostiture la tua corrente arma: "+weapon+" con "+itemsInShop[i], 'there is a little problem', 0x00000004)
+                                            if input == 6:
+                                                player.items.remove(weapon)
+                                            else:
+                                                break
                                     purchase.play()
                                     player.money -= items[itemsInShop[i]]["cost"]
                                     player.items.append(itemsInShop[i])

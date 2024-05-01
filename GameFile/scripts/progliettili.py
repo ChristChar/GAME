@@ -25,7 +25,7 @@ class Progliettile:
         self.x += vel_x
         self.y += vel_y
         if self.x > screenDimension[0] or self.x < 0 or self.y < 0 or self.y > screenDimension[1]:
-            if random.random() < 0.7:
+            if random.random() < 0.8:
                 del self
                 return
             self.direction = (self.direction + 180) % 360

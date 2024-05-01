@@ -11,7 +11,7 @@ def FINE(screen):
         CutSceen.ViewCutSceen(screen, "GameFile/CutSceen/quak.mp4")
     elif random.random() < 0.1:
         CutSceen.ViewCutSceen(screen, "GameFile/CutSceen/crash.mp4")
-        ctypes.windll.user32.MessageBoxW(0, 'Fatal Error', 'Error', 0x10)
+        ctypes.windll.user32.MessageBoxW(0, 'Error', 'ERROR', 0x10)
         W,H = screen.get_size()
         pygame.display.quit()
         time.sleep(3)

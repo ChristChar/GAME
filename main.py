@@ -1,8 +1,12 @@
+from os import error
 import pygame
+
+
 
 screen = pygame.display.set_mode(
     (800, 600), pygame.RESIZABLE)
-
+import time
+import ctypes
 import GameFile.scripts.saveload as save
 import GameFile.scripts.assets as assets
 import GameFile.scripts.notification as notific
@@ -10,7 +14,10 @@ import GameFile.scripts.cutSceen as CutSceen
 import GameFile.scripts.player as player
 import GameFile.scripts.enemies as enemy
 import GameFile.scripts.progliettili as progliettili
+import GameFile.scripts.pygameEventCycles as cicles
 import GameFile.scripts.finals as end
+import GameFile.scripts.buttons as buttons
+from GameFile.scripts.shop import shop
 
 pygame.display.quit()
 
@@ -28,24 +35,10 @@ pygame.display.set_icon(assets.yee)
 screen = pygame.display.set_mode(
     (assets.width, assets.height), pygame.RESIZABLE)
 
-startRect = pygame.rect.Rect(1, 1, 1, 1)
-quitRect = pygame.rect.Rect(1, 1, 1, 1)
 clock = pygame.time.Clock()
 Fpss = []
 lastFPS = 0
 fps = assets.font.render("FPS: ", True, (0,0,0))
-
-def drawnBtton(ScW, ScH, button, rect, position):
-    NewScalY = ScH / 10
-    rect.height = NewScalY
-    NewScalX = NewScalY * 3
-    rect.width = NewScalX
-    buttonR = pygame.transform.scale(button, (NewScalX, NewScalY))
-    posX = ScW / 2 - NewScalX / 2
-    rect.x = posX
-    posY = ScH / 2 - NewScalY / 2
-    rect.y = posY + position
-    screen.blit(buttonR, (posX, posY + position))
 
 def writeStat(self):
     Level = assets.font.render(
@@ -75,53 +68,14 @@ def writeStat(self):
 
 while True:
     clock.tick()
-    larghezza, altezza = assets.yee.get_size()
     Width, Height = screen.get_size()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            player.Player.saveProgres()
-            pygame.quit()
-            quit()
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                mouse_x, mouse_y = event.pos
-                if assets.mode == "menu":
-                    if startRect.collidepoint(mouse_x, mouse_y):
-                        assets.mode = "game"
-                        enemy.spawnEnemys(screen, player.Player)
-                    if quitRect.collidepoint(mouse_x, mouse_y):
-                        player.Player.saveProgres()
-                        pygame.quit()
-                        quit()
-                elif assets.mode == "gameMenu":
-                    if startRect.collidepoint(mouse_x, mouse_y):
-                        assets.mode = "statView"
-                    if quitRect.collidepoint(mouse_x, mouse_y):
-                        assets.round -= 1
-                        assets.mode = "menu"
-                        self = player.Player
-                        self.life = self.playerStat["stat"][0]
-                        self.stanima = self.playerStat["stat"][4]
-                        enemy.Enemys = []
-                        progliettili.progliettili = []
-                elif assets.mode == "game" and player.Player.state != "protected":
-                    for i in enemy.Enemys:
-                        if i.rect.collidepoint(mouse_x, mouse_y):
-                            player.Player.attack(i)
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                if assets.mode == "game":
-                    assets.mode = "gameMenu"
-                elif assets.mode == "gameMenu":
-                    assets.mode = "game"
-                elif assets.mode == "statView":
-                    assets.mode = "gameMenu"
+    cicles.pygameEventCicles()
     if assets.mode == "menu":
+        larghezza, altezza = assets.yee.get_size()
         screen.fill((255, 255, 255))
+        buttons.updateButtons(screen)
         pos_y = Height - altezza
         screen.blit(assets.yee, (0, pos_y))
-        drawnBtton(Width, Height, assets.SartButton, startRect, 0)
-        drawnBtton(Width, Height, assets.QuitButton, quitRect, Height / 10)
     elif assets.mode == "game":
         back = pygame.transform.scale(assets.back, (Width, Height))
         screen.blit(back, (0, 0))
@@ -132,14 +86,16 @@ while True:
         back = pygame.transform.scale(assets.back, (Width, Height))
         screen.blit(back, (0, 0))
         pygame.draw.rect(screen, (150,150,150), (Width/6, Height/6, Width/1.5, Height/1.5))
-        drawnBtton(Width, Height, assets.PlayerButton, startRect, 0)
-        drawnBtton(Width, Height, assets.MenuButton, quitRect, Height / 10)
+        buttons.updateButtons(screen)
     elif assets.mode == "statView":
         screen.fill((50,255,50))
         stat = writeStat(player.Player)
         for i in range(len(stat)):
             screen.blit(stat[i], (0 + 50,
-                        0 + i * (Height/10)+25))
+                        0 + i * (Height/11)+20))
+    elif assets.mode == "custom":
+        screen.fill((255, 255, 255))
+        buttons.updateButtons(screen)
     notific.notification(screen)
     if pygame.time.get_ticks() - lastFPS >= 1000 and len(Fpss) > 0:
         FPS = sum(Fpss) / len(Fpss)

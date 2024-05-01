@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 import GameFile.scripts.assets as assets
+import GameFile.scripts.pygameEventCycles as cicle
 from moviepy.editor import VideoFileClip
 import numpy as np
 
@@ -38,7 +39,7 @@ def ViewCutSceen(screen, video_path):
         screen.blit(frame_surface, (0, posY))
         pygame.display.flip()
         for event in pygame.event.get():
-            assets.BasePygameCicle(event, screen)
+            cicle.BaseCicle(event)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
                     pygame.mixer.music.stop()
